@@ -8,6 +8,7 @@
 # @Email: GuoYiheng89@gmail.com
 # @Time: 8/19/2019 17:42
 import os
+from skimage.data import imread
 
 
 def is_dir(parent_path, son_path):
@@ -20,8 +21,19 @@ def list_dir(parent_path, son_path=None):
     return os.listdir(full_path)
 
 
+def read_img(data_dir, img_dir, img_fname):
+    img_dir_path = os.path.join(data_dir, img_dir)
+    img_path = os.path.join(img_dir_path, img_fname)
+    return imread(img_path)
+
+
+def get_data_tuple(data_dir, img_dir, img_fname):
+    return int(img_dir), read_img(data_dir, img_dir, img_fname)
+
+
 def load_data(data_dir):
-    datas = [(int(son_file), grand_son) for son_file in list_dir(data_dir) if is_dir(data_dir, son_file)
+    datas = [get_data_tuple(data_dir, son_file, grand_son) for son_file in list_dir(data_dir) if
+             is_dir(data_dir, son_file)
              for grand_son in list_dir(data_dir, son_file) if grand_son.endswith('ppm')]
     """
     for img, label in datas:
