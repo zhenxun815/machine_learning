@@ -9,6 +9,7 @@
 # @Time: 8/19/2019 17:42
 import os
 import numpy as np
+import tensorflow as tf
 from skimage import transform
 from skimage import color
 from skimage import data
@@ -60,6 +61,11 @@ def show_img(images, img_id):
         print(f'shape: {img2show.shape}, min: {img2show.min()}, max: {img2show.max()}')
 
 
+def show_label_info(labels):
+    plt.hist(labels, len(set(labels)))
+    plt.show()
+
+
 def show_label_img(labels, images, cmap=None):
     unique_labels = set(labels)
     plt.figure(figsize=(18, 16))
@@ -87,10 +93,31 @@ if __name__ == '__main__':
     test_dir = os.path.join(img_root_path, 'Testing')
 
     train_labels, train_images = load_data(train_dir)
-
-    # print(f'{train_images[0]}')
-    # plt.hist(train_labels, 62)
-    # plt.show()
     # show_img(train_images, [300, 2250, 3650, 4000])
     train_images = pretreate_image(train_images)
-    show_label_img(train_labels, train_images,cmap='gray')
+    # show_label_img(train_labels, train_images, cmap='gray')
+
+    x = tf.placeholder(tf.float32, shape=[None, 28, 28])
+    y = tf.placeholder(tf.int32, shape=[None])
+    images_flat = tf.layers.flatten(x)
+    logits = tf.layers.dense(images_flat, 62)
+    logits = tf.nn.relu(logits)
+    cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
+    loss = tf.reduce_mean(cross_entropy)
+    train_op = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
+    correct_pred = tf.argmax(logits, 1)
+    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+    print(f'images_flat: {images_flat}')
+    print(f'logits: {logits}')
+    print(f'loss: {loss}')
+    print(f'predicted_labels: {correct_pred}')
+
+    tf.set_random_seed(1234)
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        for i in range(201):
+            loss_value, acc_value = sess.run([loss, accuracy], feed_dict={x: train_images, y: train_labels})
+            if i % 10 == 0:
+                print(f'Loss: {loss_value}, Acc: {acc_value}')
