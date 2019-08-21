@@ -8,6 +8,7 @@
 # @Email: GuoYiheng89@gmail.com
 # @Time: 8/19/2019 17:42
 import os
+import random
 import numpy as np
 import tensorflow as tf
 from skimage import transform
@@ -93,9 +94,12 @@ if __name__ == '__main__':
     test_dir = os.path.join(img_root_path, 'Testing')
 
     train_labels, train_images = load_data(train_dir)
-    # show_img(train_images, [300, 2250, 3650, 4000])
     train_images = pretreate_image(train_images)
+    # show_img(train_images, [300, 2250, 3650, 4000])
     # show_label_img(train_labels, train_images, cmap='gray')
+
+    test_labels, test_images = load_data(test_dir)
+    test_images = pretreate_image(test_images)
 
     x = tf.placeholder(tf.float32, shape=[None, 28, 28])
     y = tf.placeholder(tf.int32, shape=[None])
@@ -121,3 +125,8 @@ if __name__ == '__main__':
             loss_value, acc_value = sess.run([loss, accuracy], feed_dict={x: train_images, y: train_labels})
             if i % 10 == 0:
                 print(f'Loss: {loss_value}, Acc: {acc_value}')
+
+        predicted = sess.run([correct_pred], feed_dict={x: test_images})[0]
+        match_count = sum([int(y == y_) for y, y_ in zip(test_labels, predicted)])
+        accuracy = match_count / len(test_labels)
+        print(f'test acc: {accuracy}')
