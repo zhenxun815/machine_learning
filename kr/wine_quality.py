@@ -11,7 +11,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib.gridspec as gridspec
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 
 def print_df(df, info=False, head=True, describe=False, isna=False):
@@ -71,6 +73,14 @@ def show_sulfate_quality(white_df, red_df):
     plt.show()
 
 
+def show_corr(wines_df):
+    corr = wines_df.corr(method='pearson')
+    sns.heatmap(corr, robust=True,
+                xticklabels=corr.columns.values,
+                yticklabels=corr.columns.values)
+    plt.show()
+
+
 if __name__ == '__main__':
 
     white = pd.read_csv('winequality-white.csv', sep=';')
@@ -79,11 +89,13 @@ if __name__ == '__main__':
     red['type'] = 1
     wines = red.append(white, ignore_index=True)
     # print_df(white)
-    # print_df(wines, describe=True)
+    print_df(wines, describe=True)
     # show_alcohol(white, red)
     # show_sulfate_quality(white, red)
-    corr = wines.corr(method='pearson')
-    sns.heatmap(corr,robust=True,
-                xticklabels=corr.columns.values,
-                yticklabels=corr.columns.values)
-    plt.show()
+    X = wines.iloc[:, 0:11]
+    y = np.ravel(wines.type)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+    scaler = StandardScaler().fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
