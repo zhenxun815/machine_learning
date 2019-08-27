@@ -14,6 +14,9 @@ import seaborn as sns
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.models import Model
 
 
 def print_df(df, info=False, head=True, describe=False, isna=False):
@@ -81,6 +84,17 @@ def show_corr(wines_df):
     plt.show()
 
 
+def print_model(md: Model):
+    print(f'model shape:')
+    print(f'{md.output_shape}')
+
+    print(f'model summary:')
+    print(f'{md.summary()}')
+
+    print(f'model config:\n {md.get_config()}')
+    print(f'model weight:\n {md.get_weights()}')
+
+
 if __name__ == '__main__':
 
     white = pd.read_csv('winequality-white.csv', sep=';')
@@ -99,3 +113,19 @@ if __name__ == '__main__':
     scaler = StandardScaler().fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
+
+    model = Sequential()
+    model.add(Dense(12, activation='relu', input_shape=(11,)))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    # print_model(model)
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.fit(X_train, y_train, epochs=5, batch_size=30, verbose=2)
+    # Return the prediction score
+    # y_pred = model.predict(X_test, verbose=1)
+    # Return the prediction class
+    y_pred = model.predict_classes(X_test, verbose=1)
+
+    # The score is a list that holds the combination of the loss and the accuracy
+    score = model.evaluate(X_test, y_test, verbose=1)
+    print(f'score is: {score}')
