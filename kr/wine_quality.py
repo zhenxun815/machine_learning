@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Dense
 from tensorflow.python.keras.models import Model
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, cohen_kappa_score
 
 
 def print_df(df, info=False, head=True, describe=False, isna=False):
@@ -93,6 +94,19 @@ def print_model(md: Model):
 
     print(f'model config:\n {md.get_config()}')
     print(f'model weight:\n {md.get_weights()}')
+
+
+def print_evaluate(y_true, y_pred):
+    print('confusion matrix is:')
+    print(f'{confusion_matrix(y_true, y_pred)}')
+    print('precision score is:')
+    print(f'{precision_score(y_true, y_pred)}')
+    print('recall score is:')
+    print(f'{recall_score(y_true, y_pred)}')
+    print('f1 score is:')
+    print(f'{f1_score(y_true, y_pred)}')
+    print('cohen kappa score is:')
+    print(f'{cohen_kappa_score(y_true, y_pred)}')
 
 
 if __name__ == '__main__':
