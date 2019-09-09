@@ -10,10 +10,13 @@
 
 import pandas as pd
 import os
+import tensorflow as tf
 from common import file_utils
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense
 
 
 def csv2df(csv_dir, csv_name):
@@ -49,8 +52,17 @@ if __name__ == '__main__':
     yelp_df = all_df[all_df['source'] == 'yelp']
     # print(f'{yelp_df.head()}')
     x_train, x_test, y_train, y_test = get_train_data_set(yelp_df, 'sentence', 'label')
-    print(f'{x_train}')
+    # print(f'{x_train}')
     vectorizer = CountVectorizer()
     vectorizer.fit(x_train)
     x_train = vectorizer.transform(x_train)
     x_test = vectorizer.transform(x_test)
+    print(f'x_train shape {x_train.shape}')
+
+    input_dim = x_train.shape[1]
+    print(f'input dim is {input_dim}')
+    model = Sequential()
+    model.add(Dense(10, input_dim=input_dim, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.summary()
