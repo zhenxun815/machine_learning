@@ -47,6 +47,15 @@ def run_baseline_model():
     print(f'base line model score is {score}')
 
 
+def create_model1(input_dim):
+    model = Sequential()
+    model.add(Dense(10, input_dim=input_dim, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.summary()
+    return model
+
+
 if __name__ == '__main__':
     all_df = read_csv('./txt')
     yelp_df = all_df[all_df['source'] == 'yelp']
@@ -61,8 +70,11 @@ if __name__ == '__main__':
 
     input_dim = x_train.shape[1]
     print(f'input dim is {input_dim}')
-    model = Sequential()
-    model.add(Dense(10, input_dim=input_dim, activation='relu'))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    model.summary()
+    model = create_model1(input_dim)
+
+    model.fit(x_train, y_train, batch_size=150, epochs=20, validation_data=(x_test, y_test), verbose=False)
+
+    train_loss, train_acc = model.evaluate(x_train, y_train, verbose=False)
+    test_loss, test_acc = model.evaluate(x_test, y_test, verbose=False)
+    print(f'train:\tloss: {"{:.3f}".format(train_loss)}, acc: {"{:.3f}".format(train_acc)}')
+    print(f'test:\tloss: {"{:.3f}".format(test_loss)}, acc: {"{:.3f}".format(test_acc)}')
